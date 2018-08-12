@@ -105,20 +105,26 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
+  const id = getParameterByName('id');
+  const ul = document.getElementById('reviews-list');
+  const form = document.createElement('form');
+  form.innerHTML = '<form action=""> <fieldset> <legend>Review restaurant:</legend> Your name:<br><input type="text" name="firstname" value="Mickey"><br><span>Rating<br><select name="cars"><option value="volvo">Volvo</option> <option value="saab">Saab</option> <option value="fiat">Fiat</option> <option value="audi">Audi</option> </select><span><br>Review:<br><textarea type="text" name="lastname" cols="50" rows="5"></textarea><br><br><input type="submit" value="Add a review"> </fieldset></form>'
   title.innerHTML = 'Reviews';
   container.appendChild(title);
-  DBHelper.fetchRestaurantReview(1).then((response) => {console.log(response)})
-  if (!reviews) {
-    const noReviews = document.createElement('p');
-    noReviews.innerHTML = 'No reviews yet!';
-    container.appendChild(noReviews);
-    return;
-  }
-  const ul = document.getElementById('reviews-list');
-  reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review));
-  });
-  container.appendChild(ul);
+  container.appendChild(form);
+  DBHelper.fetchRestaurantReview(id).then((response) => {
+    console.log(response)
+    response.forEach(review => {
+      ul.appendChild(createReviewHTML(review));
+    });
+    container.appendChild(ul);
+    if (!container.hasChildNodes()) {
+      const noReviews = document.createElement('p');
+      noReviews.innerHTML = 'No reviews yet!';
+      container.appendChild(noReviews);
+      return;
+    }
+  })
 }
 
 /**
@@ -132,7 +138,9 @@ createReviewHTML = (review) => {
   li.appendChild(name);
 
   const date = document.createElement('p');
-  date.innerHTML = review.date;
+  //format date
+  const converedDate = new Date(review.updatedAt);
+  date.innerHTML = `${converedDate.getDate()} / ${converedDate.getMonth()} / ${(converedDate.getYear() + 1900)}`
   li.appendChild(date);
 
   const rating = document.createElement('p');

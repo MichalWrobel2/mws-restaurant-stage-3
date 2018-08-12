@@ -423,7 +423,48 @@ nav h1 a {
   letter-spacing: -1px;
   padding-bottom: 1pt
 }
+#reviews-container fieldset{
+  color: grey;
+  border-color: #d3d3d35c;
+  border-radius: 25px 0;
+  background: #fffcf9;
+  margin-bottom: 25px;
+}
 
+#reviews-container legend{
+  font-size: 15pt;
+  margin: 13.5px 4px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: grey;
+}
+#reviews-container input, #reviews-container textarea, #reviews-container select {
+    color: grey;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #d3d3d35c;
+}
+#reviews-container textarea {
+  max-width: 500px;
+  max-height: 250px;
+}
+#reviews-container input:focus, #reviews-container textarea:focus, #reviews-container select:focus {
+  border: 2px solid #ffa500;
+  transition: border .5s ease;
+  outline: none;
+}
+#reviews-container input[type="submit"] {
+  border: none;
+  background: #ffa500;
+  padding: 10px 15px;
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9em;
+  border-radius: 5px;
+  cursor: pointer;
+}
 #reviews-list {
   margin: 0;
   padding: 0
@@ -508,6 +549,10 @@ nav h1 a {
 }
 
 @media screen and (max-width:350px) {
+  #reviews-container textarea {
+    max-width: 80%;
+    max-height: 30%;
+  }
   #map-container {
     height: 50vh;
   }

@@ -97,9 +97,7 @@ addFavouriteRestaurant = () => {
 	const starNodes = document.getElementsByClassName('rating-star');
 	for(let i = 0; i < starNodes.length; i++) {
 		starNodes[i].addEventListener('click', (event) => {
-			console.log(event.target.id)
 			writeFavouriteRestaurantToCookies(event.target.id);
-			console.log(event.target.style.color)
 			if (event.target.style.color === 'rgb(228, 228, 228)') {
 				event.target.style.color = '#ffd700';
 			} else {
