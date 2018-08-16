@@ -7,7 +7,7 @@ const filesToCache = [
         'paths': [
             'restaurant.html',
             'index.html',
-            'sw.js',    
+            'sw.js',
             'js/main.js',
             'js/dbhelper.js',
             'js/restaurant_info.js',
@@ -39,8 +39,7 @@ self.addEventListener('install', event => {
     event.waitUntil(Promise.all(
         filesToCache.map((files) => {
           return caches.open(files.name).then((cache) => {
-              console.log(files, cache)
-            return cache.addAll(files.paths);
+           return cache.addAll(files.paths);
           });
         })));
 });

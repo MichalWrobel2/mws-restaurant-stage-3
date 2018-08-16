@@ -5,19 +5,19 @@ class DBHelper {
   /**
    * IndexedDB
    */
-  static idbOpen() {
-    const dbPromise = idb.open('keyval', 1, upgradeDB => {
-      upgradeDB.createObjectStore('keyval', {keyPath: 'id', autoIncrement : true}).createIndex('byId', 'id');;
+  static idbOpen(storeName='restaurants-info') {
+   const dbPromise = idb.open(storeName, 1, upgradeDB => {
+      upgradeDB.createObjectStore(storeName, {keyPath: 'id', autoIncrement : true}).createIndex('byId', 'id');;
     });
 
     return dbPromise;
   }
 
-  static idbSave(data) {
-    return DBHelper.idbOpen().then((db) => {
+  static idbSave(data, storeName='restaurants-info') {
+    return DBHelper.idbOpen(storeName).then((db) => {
       if (!db) return;
-      const tx = db.transaction('keyval', 'readwrite');
-      const store = tx.objectStore('keyval');
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
       data.forEach((restaurant) => {
         store.put(restaurant);
       });
@@ -25,12 +25,12 @@ class DBHelper {
       return tx.complete;
     });
   }
-  static idbRead() {
+  static idbRead(storeName='restaurants-info') {
 
-    const read = DBHelper.idbOpen().then(db => {
-      const tx = db.transaction('keyval', 'readwrite');
+    const read = DBHelper.idbOpen(storeName).then(db => {
+      const tx = db.transaction(storeName, 'readwrite');
 
-      return tx.objectStore('keyval').getAll();
+      return tx.objectStore(storeName).getAll();
 
     });
 

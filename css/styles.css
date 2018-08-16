@@ -445,7 +445,8 @@ nav h1 a {
     border: 1px solid #d3d3d35c;
 }
 #reviews-container textarea {
-  max-width: 500px;
+  width: 90%;
+  max-width: 80%;
   max-height: 250px;
 }
 #reviews-container input:focus, #reviews-container textarea:focus, #reviews-container select:focus {
@@ -544,7 +545,7 @@ nav h1 a {
 }
 
 #map {
-  background-image: url(https://maps.googleapis.com/maps/api/staticmap?center=40.722216+-73.987501&zoom=12&scale=1&size=640x640&maptype=roadmap&format=jpg&visual_refresh=true&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C40.713829+-73.989667&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C40.683555+-73.966393&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C40.747143+-73.985414&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C40.722216+-73.987501&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C40.705089+-73.933585&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C40.722216+-73.987501&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C40.674925+-74.016162&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C40.727397+-73.983645&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C40.726584+-74.002082&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C40.743797+-73.950652&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C40.743394+-73.954235);
+  background-image: url('../img/staticmap.png');
   background-size: cover;
 }
 

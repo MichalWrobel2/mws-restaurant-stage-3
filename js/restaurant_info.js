@@ -1,5 +1,6 @@
 let restaurant;
 var map;
+const fullInfo = {};
 
 /**
  * Initialize Google map, called from HTML.
@@ -108,25 +109,106 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const id = getParameterByName('id');
   const ul = document.getElementById('reviews-list');
   const form = document.createElement('form');
-  form.innerHTML = '<form action=""> <fieldset> <legend>Review restaurant:</legend> Your name:<br><input type="text" name="firstname" value="Mickey"><br><span>Rating<br><select name="cars"><option value="volvo">Volvo</option> <option value="saab">Saab</option> <option value="fiat">Fiat</option> <option value="audi">Audi</option> </select><span><br>Review:<br><textarea type="text" name="lastname" cols="50" rows="5"></textarea><br><br><input type="submit" value="Add a review"> </fieldset></form>'
+  form.innerHTML = '<form action=""> <fieldset> <legend>Review restaurant:</legend> Your name:<br><input type="text" name="firstname"><br><span>Rating<br><select name="rating"><option value="1">1</option> <option value="2">2</option> <option value="3">3</option> <option value="4">4</option><option value="5">5</option> </select><span><br>Review:<br><textarea type="text" name="lastname" cols="50" rows="5" value=""></textarea><br><br><input type="submit" value="Add a review"> </fieldset></form>'
   title.innerHTML = 'Reviews';
   container.appendChild(title);
   container.appendChild(form);
-  DBHelper.fetchRestaurantReview(id).then((response) => {
-    console.log(response)
-    response.forEach(review => {
-      ul.appendChild(createReviewHTML(review));
-    });
-    container.appendChild(ul);
-    if (!container.hasChildNodes()) {
-      const noReviews = document.createElement('p');
-      noReviews.innerHTML = 'No reviews yet!';
-      container.appendChild(noReviews);
+
+  bindFormSubmit();
+  getValuesFromForm();
+  DBHelper.idbRead('reviews').then((reviews) => {
+    if (reviews && reviews.length) {
+     reviews.forEach((review) => {
+        if (review.restaurant_id == id) {
+          ul.appendChild(createReviewHTML(review));
+        }
+     });
+     container.appendChild(ul);
       return;
+    } else {
+    DBHelper.fetchRestaurantReview(id).then((response) => {
+        response.forEach(review => {
+         ul.appendChild(createReviewHTML(review));
+       });
+      container.appendChild(ul);
+     if (!container.hasChildNodes()) {
+       const noReviews = document.createElement('p');
+       noReviews.innerHTML = 'No reviews yet!';
+       container.appendChild(noReviews);
+        return;
+      }
+    })
     }
+
+  })
+
+}
+bindFormSubmit = () => {
+  const form = document.getElementsByTagName('fieldset')[0];
+  const formButton = form.getElementsByTagName('input')[1];
+
+  formButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    postReview();
+    return false;
   })
 }
+getValuesFromForm = () => {
+  const form =  document.getElementsByTagName('fieldset')[0],
+  inputNode = form.getElementsByTagName('input')[0],
+  select = form.getElementsByTagName('select')[0],
+  textareaNode = form.getElementsByTagName('textarea')[0];
+ inputNode.addEventListener('input', (userInput) => {
+    fullInfo.name = userInput.target.value;
+  });
+  select.addEventListener('change', (userInput) => {
+    fullInfo.rating = userInput.currentTarget.value;
+  });
+  textareaNode.addEventListener('change', userInput => {
+    fullInfo.comments = userInput.currentTarget.value;
+  })
+  return fullInfo;
+}
+postReview = () => {
+  const dataToPost = getValuesFromForm();
+  const reviewDate = new Date();
+  dataToPost.createdAt = dataToPost.updatedAt = reviewDate.getTime();
+  if (!dataToPost.comments || !dataToPost.name) {
+    alert('Please fill all form fields first');
+    return;
+  }
+  if (!dataToPost.rating) {
+    dataToPost.rating = 1;
+  }
+  dataToPost.restaurant_id = getParameterByName('id');
+  if (!navigator.onLine) {
+    sendDataWhenOnline(dataToPost);
 
+    return;
+  }
+
+  fetch('http://localhost:1337/reviews', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(dataToPost)
+  })
+ }
+sendDataWhenOnline = (dataToPost) => {
+  const dataJSON = JSON.stringify(dataToPost);
+  localStorage.setItem('pending-review', dataJSON);
+  window.addEventListener('online', () => {
+     fetch('http://localhost:1337/reviews', {
+     method: "POST",
+     headers: {
+        "Content-Type": "application/json"
+     },
+     body: dataJSON
+    })
+  })
+  localStorage.removeItem('pending-review');
+}
 /**
  * Create review HTML and add it to the webpage.
  */

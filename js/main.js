@@ -2,6 +2,12 @@
 let restaurants, neighborhoods, cuisines;
 var map, markers = [];
 
+fetch('http://localhost:1337/reviews').then((reviews) => {
+    return reviews.json();
+  }).then((parsedReviews) => {
+   DBHelper.idbSave(parsedReviews, 'reviews');
+    return parsedReviews;
+})
 fetchNeighborhoods = () => {
     DBHelper.fetchNeighborhoods((a, b) => {
         a ? console.error(a) : (self.neighborhoods = b, fillNeighborhoodsHTML())
