@@ -2,6 +2,25 @@
 let restaurants, neighborhoods, cuisines;
 var map, markers = [];
 
+getStaticMapImage = () => {
+  fetch('http://localhost:1337/restaurants').then((response) => {
+    return response.json();
+  }).then((restaurants) => {
+   const loc = {
+      lat: 40.722216,
+     lng: -73.987501
+   };
+  console.log(restaurants)
+   let mapURL = `https://maps.googleapis.com/maps/api/staticmap?center=${loc.lat},${loc.lng}&zoom=12&size=${document.documentElement.clientWidth}x400&markers=color:red`;
+   restaurants.forEach(restaurant => {
+    mapURL += `|${restaurant.latlng.lat},${restaurant.latlng.lng}`;
+   });
+   mapURL += "&key=AIzaSyD9HHo6A99kadjeKZuLopk9F6m1HjKtMhg";
+   console.log(mapURL);
+   document.getElementById('map').style.backgroundImage = `url(${mapURL})`;
+  })
+ }
+getStaticMapImage();
 fetch('http://localhost:1337/reviews').then((reviews) => {
     return reviews.json();
   }).then((parsedReviews) => {
@@ -92,9 +111,11 @@ createRestaurantHTML = a => {
     const g = document.createElement('a');
     const favouritesToggle = document.createElement('div');
     favouritesToggle.className = 'rating-star'
-    favouritesToggle.id = a.name;
+    favouritesToggle.id = a.id;
     favouritesToggle.innerHTML = '&#9733;';
-    favouritesToggle.style.color = isRestaurantInCookies(a.name) ? '#ffd700' : '#e4e4e4';
+    favouritesToggle.ariaLabel = 'Mark restaurant as favourite';
+    favouritesToggle.role = 'button';
+    favouritesToggle.style.color = a.is_favorite ? '#ffd700' : '#e4e4e4';
     b.append(favouritesToggle);
 
     return g.innerHTML = 'View Details', g.href = DBHelper.urlForRestaurant(a), b.append(g), b
@@ -103,12 +124,7 @@ addFavouriteRestaurant = () => {
 	const starNodes = document.getElementsByClassName('rating-star');
 	for(let i = 0; i < starNodes.length; i++) {
 		starNodes[i].addEventListener('click', (event) => {
-			writeFavouriteRestaurantToCookies(event.target.id);
-			if (event.target.style.color === 'rgb(228, 228, 228)') {
-				event.target.style.color = '#ffd700';
-			} else {
-				event.target.style.color = '#e4e4e4';
-			}
+			writeFavouriteRestaurantToCookies(event.target);
 		});
 	}
 }
@@ -116,22 +132,50 @@ isRestaurantInCookies = (name) => {
 	return decodeURIComponent(document.cookie).indexOf(name) !== -1;
 },
 writeFavouriteRestaurantToCookies = (name) => {
-	const cookieValues = decodeURIComponent(document.cookie);
-	if (cookieValues.indexOf(name) !== -1) {
-		//Remove cookie - restaurant is no longer favourite
-		cookieValues.split(';').forEach((cookie) => {
-			if (cookie.indexOf(name) !== -1) {
-				document.cookie = cookie +'=; path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-			}
-		})
-		return;
-	}
+	// const cookieValues = decodeURIComponent(document.cookie);
+	if (name.style.color === 'rgb(228, 228, 228)') {
+		fetch(`http://localhost:1337/restaurants/${name.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({"is_favorite":true})
+    }).then((response) => {
+      if (response.status == 200) {
+        name.style.color = '#ffd700';
+        DBHelper.idbUpdateField(name.id, 'is_favorite', true);
+        console.log('UPDATE ENDED WITH SUCCESS');
+      } else {
+        console.log('STATUS DIFFERS FROM 200');
+      }
 
-	const d = new Date();
-    const exdays = 365;
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    const expires = "expires="+ d.toUTCString();
-    document.cookie = `fav-restaurant-${generateHash()}=${name};${expires};path=/;`;
+    })
+   	} else {
+    	fetch(`http://localhost:1337/restaurants/${name.id}`, {
+        method: 'PUT',
+       body: JSON.stringify({"is_favorite":false})
+      }).then((response) => {
+       if (response.status == 200) {
+        name.style.color =  '#e4e4e4';
+        DBHelper.idbUpdateField(name.id, 'is_favorite', false);
+        console.log('UPDATE ENDED WITH SUCCESS');
+      } else {
+        console.log('STATUS DIFFERS FROM 200');
+      }
+    })
+	}
+	//if (cookieValues.indexOf(name) !== -1) {
+		//Remove cookie - restaurant is no longer favourite
+		//cookieValues.split(';').forEach((cookie) => {
+			//if (cookie.indexOf(name) !== -1) {
+				//document.cookie = cookie +'=; path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+			//}
+		//})
+		//return;
+	//}
+
+	//const d = new Date();
+    //const exdays = 365;
+    //d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    //const expires = "expires="+ d.toUTCString();
+   // document.cookie = `fav-restaurant-${generateHash()}=${name};${expires};path=/;`;
 },
 generateHash = () => {
   var text = "";

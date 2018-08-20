@@ -25,6 +25,27 @@ class DBHelper {
       return tx.complete;
     });
   }
+
+  static idbUpdateField(id, field, value, storeName='restaurants-info') {
+    return DBHelper.idbOpen(storeName).then((db) => {
+      if (!db) return;
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+
+      store.getAll().then((restaurants) => {
+       restaurants.forEach((restaurant) => {
+        if (restaurant.id == id) {
+         const restaurantData = restaurant;
+         restaurantData[field] = value;
+         store.put(restaurantData);
+         console.log('Updating value in idb');
+        }
+
+       });
+      });
+    });
+  }
+
   static idbRead(storeName='restaurants-info') {
 
     const read = DBHelper.idbOpen(storeName).then(db => {

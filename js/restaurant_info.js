@@ -109,7 +109,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const id = getParameterByName('id');
   const ul = document.getElementById('reviews-list');
   const form = document.createElement('form');
-  form.innerHTML = '<form action=""> <fieldset> <legend>Review restaurant:</legend> Your name:<br><input type="text" name="firstname"><br><span>Rating<br><select name="rating"><option value="1">1</option> <option value="2">2</option> <option value="3">3</option> <option value="4">4</option><option value="5">5</option> </select><span><br>Review:<br><textarea type="text" name="lastname" cols="50" rows="5" value=""></textarea><br><br><input type="submit" value="Add a review"> </fieldset></form>'
+  form.innerHTML = '<form action=""> <fieldset> <legend>Review restaurant:</legend> <label for="name-input">Name</label><br><input type="text" id="name-input" name="firstname"><br><span><label for="rating-input">Rating</label><br><select id="rating-input" name="rating"><option value="1">1</option> <option value="2">2</option> <option value="3">3</option> <option value="4">4</option><option value="5">5</option> </select><span><br><label for="review-input">Review</label><br><textarea id="review-input" type="text" name="lastname" cols="50" rows="5" value=""></textarea><br><label for="submit-input">Add review</label><br><input id="submit-input"  type="submit" value="Add a review"> </fieldset></form>'
   title.innerHTML = 'Reviews';
   container.appendChild(title);
   container.appendChild(form);
@@ -135,7 +135,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
        const noReviews = document.createElement('p');
        noReviews.innerHTML = 'No reviews yet!';
        container.appendChild(noReviews);
-        return;
+       return;
       }
     })
     }
@@ -172,6 +172,8 @@ getValuesFromForm = () => {
 postReview = () => {
   const dataToPost = getValuesFromForm();
   const reviewDate = new Date();
+  const ul = document.getElementById('reviews-list');
+
   dataToPost.createdAt = dataToPost.updatedAt = reviewDate.getTime();
   if (!dataToPost.comments || !dataToPost.name) {
     alert('Please fill all form fields first');
@@ -193,7 +195,9 @@ postReview = () => {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(dataToPost)
-  })
+  });
+
+  ul.appendChild(createReviewHTML(dataToPost));
  }
 sendDataWhenOnline = (dataToPost) => {
   const dataJSON = JSON.stringify(dataToPost);
